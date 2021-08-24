@@ -233,14 +233,17 @@ class _NewPostState extends State<NewPost>
                   clipBehavior: Clip.none,
                   children: [
                     Container(
-                      height: _size.height,
+                      height: _size.height * 0.87,
                       width: _size.width,
                       child: FutureBuilder(
                         future: _initailizeCameraFuture,
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.done) {
-                            return CameraPreview(_cameraController);
+                            return AspectRatio(
+                              aspectRatio: _cameraController.value.aspectRatio,
+                              child: CameraPreview(_cameraController),
+                            );
                           } else {
                             return Center(
                               child: CircularProgressIndicator(),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:instagram_clone/core/utils/constants.dart';
-import 'package:instagram_clone/core/utils/sizing.dart';
-import 'dart:math' as Math;
 
 import 'custom_ring.dart';
 
@@ -25,32 +24,14 @@ class CaptureButton extends StatefulWidget {
 
 class _CaptureButtonState extends State<CaptureButton> {
   ScrollController buttonScrollController;
-  double selectedButton = 1.0;
+  double selectedButton = 0.0;
+  bool isScrolled = true;
 
   @override
   void initState() {
     buttonScrollController = ScrollController();
-    buttonScrollController.position.isScrollingNotifier
-        .addListener(buttonScrollChange);
     super.initState();
   }
-
-  void buttonScrollChange() {
-    var d = (buttonScrollController.position.maxScrollExtent / 10) - 155.25;
-    var f = d + buttonScrollController.offset;
-    setState(() {
-      if (f - d < 34 && selectedButton != 1.0) {
-        buttonScrollController.jumpTo(d);
-        selectedButton = 1;
-      } else if (f - d >= 34.25 && selectedButton != 2.0) {
-        buttonScrollController.jumpTo(d + 68.5 * 2 + 34.25 + 9);
-        selectedButton = 2;
-      }
-    });
-  }
-
-  //Distance between two points
-  double distance(int a, double b) => (a - b).abs() == 0 ? 0 : 4;
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +47,44 @@ class _CaptureButtonState extends State<CaptureButton> {
             child: ListView.separated(
               shrinkWrap: true,
               cacheExtent: 0,
-              controller: buttonScrollController,
+              controller: buttonScrollController
+                ..addListener(() {
+                  if (isScrolled) {
+                    if (buttonScrollController.position.userScrollDirection ==
+                        ScrollDirection.forward) {
+                      buttonScrollController.position.animateTo(
+                          (_size.width / 6 + kmediumSpace) * selectedButton,
+                          duration: Duration(milliseconds: 300),
+                          curve: Curves.decelerate);
+                      setState(() {
+                        if (selectedButton != 0) {
+                          selectedButton -= 1.0;
+                          isScrolled = false;
+                        }
+                      });
+                    } else if (buttonScrollController
+                            .position.userScrollDirection ==
+                        ScrollDirection.reverse) {
+                      buttonScrollController.position.animateTo(
+                          (_size.width / 6 + kmediumSpace) *
+                              (selectedButton + 1),
+                          duration: Duration(milliseconds: 300),
+                          curve: Curves.decelerate);
+                      setState(() {
+                        if (!(selectedButton > 10)) {
+                          selectedButton += 1.0;
+                          isScrolled = false;
+                        }
+                      });
+                    }
+                  } else {
+                    Future.delayed(Duration(seconds: 10), () {
+                      setState(() {
+                        isScrolled = true;
+                      });
+                    });
+                  }
+                }),
               scrollDirection: Axis.horizontal,
               clipBehavior: Clip.none,
               separatorBuilder: (ctx, index) => SizedBox(
@@ -77,38 +95,43 @@ class _CaptureButtonState extends State<CaptureButton> {
                     ? SizedBox(
                         width: 5 * (_size.width / 12) - kmediumSpace,
                       )
-                    : ClipOval(
-                        child: AnimatedPadding(
-                          duration: Duration(milliseconds: 300),
-                          padding:
-                              EdgeInsets.all(distance(index, selectedButton)),
-                          child: AnimatedContainer(
-                            duration: Duration(milliseconds: 300),
-                            height: _size.width / 6 -
-                                distance(index, selectedButton),
-                            width: _size.width / 6 -
-                                distance(index, selectedButton),
-                            decoration: BoxDecoration(
-                              color: index == 3 ? Colors.white : Colors.blue,
-                              borderRadius:
-                                  BorderRadius.circular(_size.width / 6),
+                    : index == 11
+                        ? SizedBox(
+                            width: 5 * (_size.width / 12) - kmediumSpace,
+                          )
+                        : ClipOval(
+                            child: AnimatedPadding(
+                              duration: Duration(milliseconds: 300),
+                              padding: EdgeInsets.all(0),
+                              child: AnimatedContainer(
+                                duration: Duration(milliseconds: 300),
+                                height: _size.width / 6,
+                                width: _size.width / 6,
+                                decoration: BoxDecoration(
+                                  color:
+                                      index == 3 ? Colors.purple : Colors.blue,
+                                  borderRadius:
+                                      BorderRadius.circular(_size.width / 6),
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                      );
+                          );
               },
-              itemCount: 11,
+              itemCount: 10 + 2,
             ),
           ),
           ClipPath(
-            clipper: CustomRing(w: 5.0, x: 85, y: 85),
+            clipper: CustomRing(
+                w: _size.width * 0.012,
+                x: _size.width * 0.2,
+                y: _size.width * 0.2),
             child: GestureDetector(
               onTap: widget.cameraCaptureTap,
               onLongPress: widget.cameraCaptureLongPress,
               onLongPressUp: widget.cameraCaptureLongPressUp,
               child: Container(
-                height: 85,
-                width: 85,
+                height: _size.width * 0.2,
+                width: _size.width * 0.2,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: Colors.white,
