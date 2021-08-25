@@ -108,8 +108,9 @@ class _CaptureButtonState extends State<CaptureButton> {
                                 height: _size.width / 6,
                                 width: _size.width / 6,
                                 decoration: BoxDecoration(
-                                  color:
-                                      index == 3 ? Colors.purple : Colors.blue,
+                                  color: index == 3
+                                      ? Colors.purple
+                                      : Colors.blueGrey,
                                   borderRadius:
                                       BorderRadius.circular(_size.width / 6),
                                 ),
