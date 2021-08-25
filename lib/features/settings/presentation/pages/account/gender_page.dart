@@ -13,8 +13,6 @@ class _GenderPageState extends State<GenderPage> {
   var _value = Gender.female;
   @override
   Widget build(BuildContext context) {
-    var brightness = MediaQuery.of(context).platformBrightness;
-    bool darkModeOn = brightness == Brightness.dark;
     var _size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
